@@ -1,0 +1,7 @@
+{
+  "wallet": "",
+  "pool": "pool.supportxmr.com:3333",
+  "worker": "worker1",
+  "threads": 0,
+  "max_cpu_usage": 75
+}
