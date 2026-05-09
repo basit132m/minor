@@ -3,17 +3,24 @@ Theme Name:   NSWPedia Child
 Description:  Child theme for NSWPedia.net — exact header/footer clone of nswpedia.com with SEO improvements.
 Author:       NSWPedia
 Template:     astra
-Version:      1.0.0
+Version:      1.1.0
 Text Domain:  nswpedia-child
 */
+
+/* =============================================================================
+   GLOBAL RESET & UTILITIES
+   ============================================================================= */
+
+*, *::before, *::after { box-sizing: border-box; }
 
 /* =============================================================================
    HEADER — Top Amber Accent Bar
    ============================================================================= */
 
-/* Thin amber/orange line across the very top of the page */
 #masthead {
 	border-top: 3px solid #f0a500;
+	border-bottom: 1px solid #eeeeee;
+	box-shadow: none;
 }
 
 /* =============================================================================
@@ -24,15 +31,16 @@ Text Domain:  nswpedia-child
 .ast-primary-header-bar .site-primary-header-wrap {
 	background-color: #ffffff;
 	min-height: 72px;
+	border-bottom: none;
+	box-shadow: none;
 }
 
 /* =============================================================================
-   LOGO — Bold Text Treatment (no image logo)
+   LOGO — Bold Text (no image logo)
    ============================================================================= */
 
 .ast-site-identity .site-title,
 .ast-site-identity .site-title a {
-	font-family: inherit;
 	font-size: 22px;
 	font-weight: 800;
 	letter-spacing: 0.3px;
@@ -42,21 +50,13 @@ Text Domain:  nswpedia-child
 	line-height: 1;
 }
 
-.ast-site-identity .site-title a:hover {
-	color: #111111;
-	text-decoration: none;
-}
-
-/* Hide site tagline in header */
-.ast-site-identity .site-description {
-	display: none;
-}
+.ast-site-identity .site-title a:hover { color: #111111; text-decoration: none; }
+.ast-site-identity .site-description { display: none; }
 
 /* =============================================================================
-   NAVIGATION — Menu Items with Icons
+   NAVIGATION — Menu Items
    ============================================================================= */
 
-/* Menu container alignment */
 .ast-primary-header-bar .main-header-menu {
 	background: transparent;
 	display: flex;
@@ -64,7 +64,6 @@ Text Domain:  nswpedia-child
 	gap: 0;
 }
 
-/* Menu items */
 .main-header-menu > .menu-item > a {
 	font-size: 14px;
 	font-weight: 500;
@@ -79,28 +78,11 @@ Text Domain:  nswpedia-child
 	border-bottom: none;
 }
 
-.main-header-menu > .menu-item > a:hover {
-	color: #f0a500;
-	background: transparent;
-}
+.main-header-menu > .menu-item > a:hover,
+.main-header-menu > .menu-item > a:focus { color: #f0a500; background: transparent; text-decoration: none; }
 
 .main-header-menu > .menu-item.current-menu-item > a,
-.main-header-menu > .menu-item.current_page_item > a {
-	color: #f0a500;
-	background: transparent;
-}
-
-/* Remove default Astra hover underline */
-.ast-primary-header-bar .main-header-menu .menu-item > a:focus,
-.ast-primary-header-bar .main-header-menu .menu-item > a:hover {
-	text-decoration: none;
-}
-
-/* =============================================================================
-   NAV ICONS — SVG icons injected via menu Navigation Labels
-   Usage: paste the <svg>…</svg> HTML directly into the menu item label
-   in Appearance > Menus. The CSS below sizes and aligns them.
-   ============================================================================= */
+.main-header-menu > .menu-item.current_page_item > a { color: #f0a500; background: transparent; }
 
 .main-header-menu > .menu-item > a svg {
 	width: 16px;
@@ -111,23 +93,14 @@ Text Domain:  nswpedia-child
 	color: #444444;
 }
 
-.main-header-menu > .menu-item > a:hover svg {
-	color: #f0a500;
-}
+.main-header-menu > .menu-item > a:hover svg { color: #f0a500; }
 
 /* =============================================================================
-   SEARCH — Inline full-width search box (right zone)
-   Set Search component style to "Classic" in Astra Header Builder
+   SEARCH — Inline header search box
    ============================================================================= */
 
-/* Outer wrapper */
-.ast-header-search,
-.ast-search-menu-icon {
-	display: flex;
-	align-items: center;
-}
+.ast-header-search, .ast-search-menu-icon { display: flex; align-items: center; }
 
-/* The search form box */
 .ast-header-search .search-form,
 .ast-search-menu-icon .search-form {
 	display: flex !important;
@@ -140,7 +113,6 @@ Text Domain:  nswpedia-child
 	gap: 8px;
 }
 
-/* Input field */
 .ast-header-search .search-field,
 .ast-search-menu-icon .search-field {
 	border: none !important;
@@ -157,12 +129,8 @@ Text Domain:  nswpedia-child
 }
 
 .ast-header-search .search-field::placeholder,
-.ast-search-menu-icon .search-field::placeholder {
-	color: #aaaaaa;
-	font-size: 14px;
-}
+.ast-search-menu-icon .search-field::placeholder { color: #aaaaaa; font-size: 14px; }
 
-/* Hide default submit button text, keep icon */
 .ast-header-search .search-submit,
 .ast-search-menu-icon .search-submit {
 	background: transparent !important;
@@ -170,13 +138,12 @@ Text Domain:  nswpedia-child
 	padding: 0 !important;
 	cursor: pointer;
 	color: #888888;
-	font-size: 0; /* hide text */
+	font-size: 0;
 	display: flex;
 	align-items: center;
 	flex-shrink: 0;
 }
 
-/* Magnifying glass icon via ::before */
 .ast-header-search .search-submit::before,
 .ast-search-menu-icon .search-submit::before {
 	content: '';
@@ -193,27 +160,8 @@ Text Domain:  nswpedia-child
 	background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23f0a500' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='11' cy='11' r='8'/%3E%3Cline x1='21' y1='21' x2='16.65' y2='16.65'/%3E%3C/svg%3E");
 }
 
-/* Override Astra Pro advanced-search inline-search if active */
-.ast-inline-search .ast-search-form {
-	background: #f5f5f5 !important;
-	border: 1px solid #e2e2e2 !important;
-	border-radius: 5px !important;
-	width: 240px !important;
-}
-
-.ast-inline-search .ast-search-form .search-field {
-	background: transparent !important;
-	border: none !important;
-	font-size: 14px !important;
-	color: #333333 !important;
-}
-
-.ast-inline-search .ast-search-form .search-field::placeholder {
-	color: #aaaaaa !important;
-}
-
 /* =============================================================================
-   MOBILE HEADER — keep consistent
+   MOBILE HEADER
    ============================================================================= */
 
 .ast-mobile-header-wrap .ast-primary-header-bar {
@@ -221,33 +169,19 @@ Text Domain:  nswpedia-child
 	border-top: 3px solid #f0a500;
 }
 
-/* Hamburger icon color */
 .ast-button-wrap .menu-toggle,
-.ast-mobile-menu-trigger .menu-toggle {
-	color: #111111;
-}
+.ast-mobile-menu-trigger .menu-toggle { color: #111111; }
 
 /* =============================================================================
-   HEADER — Remove extra borders/shadows added by Astra defaults
+   LAYOUT
    ============================================================================= */
 
-.ast-primary-header-bar {
-	border-bottom: none;
-	box-shadow: none;
-}
-
-/* Light bottom border to separate header from content */
-#masthead {
-	border-bottom: 1px solid #eeeeee;
-}
+.ast-container { max-width: 1280px; }
 
 /* =============================================================================
-   SEO IMPROVEMENTS (beyond competitor)
-   — Schema-friendly skip link is already in Astra
-   — Force breadcrumb display on all non-home pages
+   BREADCRUMBS
    ============================================================================= */
 
-/* Breadcrumb bar */
 .ast-breadcrumbs-wrapper {
 	background: #f9f9f9;
 	border-bottom: 1px solid #eeeeee;
@@ -255,20 +189,580 @@ Text Domain:  nswpedia-child
 	font-size: 13px;
 }
 
-.ast-breadcrumbs-wrapper a {
-	color: #f0a500;
-	text-decoration: none;
+.ast-breadcrumbs-wrapper a { color: #f0a500; text-decoration: none; }
+.ast-breadcrumbs-wrapper a:hover { text-decoration: underline; }
+
+/* =============================================================================
+   ARTICLE — Hide duplicate Astra H1 (our custom H1 is in the hero)
+   ============================================================================= */
+
+.single .entry-header .entry-title,
+.single .entry-title,
+.ast-single-post .entry-title { display: none !important; }
+
+/* =============================================================================
+   ARTICLE HERO
+   ============================================================================= */
+
+.nsw-article-hero {
+	display: flex;
+	gap: 28px;
+	align-items: flex-start;
+	background: #fff;
+	border: 1px solid #eeeeee;
+	border-radius: 12px;
+	padding: 24px;
+	margin-bottom: 28px;
 }
 
-.ast-breadcrumbs-wrapper a:hover {
-	text-decoration: underline;
+.nsw-hero-img-wrap {
+	flex-shrink: 0;
+	width: 240px;
+}
+
+.nsw-hero-img {
+	width: 100%;
+	height: auto;
+	border-radius: 8px;
+	display: block;
+}
+
+.nsw-hero-meta {
+	flex: 1;
+	min-width: 0;
+}
+
+.nsw-article-title {
+	font-size: 26px;
+	font-weight: 800;
+	color: #111;
+	margin: 0 0 14px;
+	line-height: 1.3;
+}
+
+.nsw-hero-badges {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 8px;
+	margin-bottom: 16px;
+}
+
+.nsw-pill {
+	display: inline-block;
+	font-size: 12px;
+	font-weight: 600;
+	padding: 4px 12px;
+	border-radius: 20px;
+	text-decoration: none;
+	line-height: 1.4;
+}
+
+.nsw-pill-version { background: #f0f0f0; color: #555; }
+.nsw-pill-format  { background: #fff3cd; color: #7a5800; }
+.nsw-pill-format:hover { background: #ffe89a; color: #5a3d00; }
+.nsw-pill-genre   { background: #e8f4fd; color: #0a5fa0; }
+.nsw-pill-genre:hover { background: #cde6fa; color: #073f70; }
+.nsw-pill-badge   { background: #fde8e8; color: #a01010; }
+.nsw-pill-badge:hover { background: #facccc; color: #7a0000; }
+
+.nsw-hero-rating { margin-top: 8px; }
+
+/* =============================================================================
+   GAME INFO TABLE
+   ============================================================================= */
+
+.nsw-game-info-table {
+	margin-bottom: 28px;
+	border: 1px solid #eeeeee;
+	border-radius: 10px;
+	overflow: hidden;
+}
+
+.nsw-game-info-table table {
+	width: 100%;
+	border-collapse: collapse;
+	font-size: 14px;
+}
+
+.nsw-game-info-table th,
+.nsw-game-info-table td {
+	padding: 10px 16px;
+	border-bottom: 1px solid #f0f0f0;
+	text-align: left;
+}
+
+.nsw-game-info-table tr:last-child th,
+.nsw-game-info-table tr:last-child td { border-bottom: none; }
+
+.nsw-game-info-table th {
+	width: 38%;
+	font-weight: 600;
+	color: #555;
+	background: #fafafa;
+}
+
+.nsw-game-info-table td { color: #111; }
+.nsw-game-info-table td a { color: #f0a500; text-decoration: none; }
+.nsw-game-info-table td a:hover { text-decoration: underline; }
+
+/* =============================================================================
+   SCREENSHOTS GRID
+   ============================================================================= */
+
+.nsw-screenshots { margin-bottom: 28px; }
+
+.nsw-screenshots-heading {
+	font-size: 18px;
+	font-weight: 700;
+	color: #111;
+	margin-bottom: 14px;
+}
+
+.nsw-shots-grid {
+	display: grid;
+	grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+	gap: 10px;
+}
+
+.nsw-shot-thumb {
+	display: block;
+	border-radius: 6px;
+	overflow: hidden;
+	line-height: 0;
+	border: 1px solid #eeeeee;
+	transition: transform .15s, box-shadow .15s;
+}
+
+.nsw-shot-thumb:hover {
+	transform: translateY(-2px);
+	box-shadow: 0 4px 14px rgba(0,0,0,.12);
+}
+
+.nsw-shot-thumb img {
+	width: 100%;
+	height: auto;
+	display: block;
+	object-fit: cover;
 }
 
 /* =============================================================================
-   UTILITY
+   LIGHTBOX
    ============================================================================= */
 
-/* Full-width container to match competitor's edge-to-edge feel */
-.ast-container {
-	max-width: 1280px;
+.nsw-lightbox {
+	display: none;
+	position: fixed;
+	inset: 0;
+	z-index: 99999;
+	align-items: center;
+	justify-content: center;
+}
+
+.nsw-lightbox.is-open { display: flex; }
+
+.nsw-lb-overlay {
+	position: absolute;
+	inset: 0;
+	background: rgba(0,0,0,.88);
+}
+
+.nsw-lb-inner {
+	position: relative;
+	z-index: 1;
+	display: flex;
+	align-items: center;
+	gap: 16px;
+	max-width: 95vw;
+	max-height: 95vh;
+}
+
+.nsw-lb-img {
+	max-width: 85vw;
+	max-height: 90vh;
+	border-radius: 6px;
+	display: block;
+	object-fit: contain;
+}
+
+.nsw-lb-close,
+.nsw-lb-prev,
+.nsw-lb-next {
+	background: rgba(255,255,255,.15);
+	border: none;
+	color: #fff;
+	cursor: pointer;
+	border-radius: 50%;
+	width: 44px;
+	height: 44px;
+	font-size: 20px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	flex-shrink: 0;
+	transition: background .15s;
+}
+
+.nsw-lb-close:hover,
+.nsw-lb-prev:hover,
+.nsw-lb-next:hover { background: rgba(255,255,255,.30); }
+
+.nsw-lb-close {
+	position: absolute;
+	top: -52px;
+	right: 0;
+	font-size: 26px;
+}
+
+/* =============================================================================
+   DOWNLOAD BUTTONS
+   ============================================================================= */
+
+.nsw-downloads { margin-top: 28px; }
+
+.nsw-downloads-heading {
+	font-size: 18px;
+	font-weight: 700;
+	color: #111;
+	margin-bottom: 14px;
+}
+
+.nsw-dl-btn {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	background: linear-gradient(135deg, #f0a500 0%, #e09000 100%);
+	color: #ffffff;
+	border-radius: 10px;
+	padding: 18px 24px;
+	text-decoration: none;
+	min-width: 300px;
+	max-width: 560px;
+	width: 100%;
+	margin-bottom: 12px;
+	transition: all .2s ease;
+	box-shadow: 0 4px 14px rgba(240,165,0,.30);
+}
+
+.nsw-dl-btn:hover {
+	background: linear-gradient(135deg, #e09000 0%, #c87c00 100%);
+	box-shadow: 0 6px 20px rgba(240,165,0,.45);
+	color: #ffffff;
+	text-decoration: none;
+	transform: translateY(-2px);
+}
+
+.nsw-dl-left {
+	display: flex;
+	align-items: center;
+	gap: 12px;
+	font-size: 15px;
+}
+
+.nsw-dl-left svg { flex-shrink: 0; }
+
+.nsw-dl-label { font-size: 14px; line-height: 1.3; font-weight: 500; }
+.nsw-dl-label strong { font-size: 16px; font-weight: 700; display: block; }
+
+.nsw-dl-size {
+	font-size: 14px;
+	font-weight: 600;
+	background: rgba(255,255,255,.22);
+	padding: 5px 14px;
+	border-radius: 20px;
+	white-space: nowrap;
+	flex-shrink: 0;
+}
+
+/* =============================================================================
+   ROM CARDS — Homepage & Archive Grids
+   ============================================================================= */
+
+.nsw-rom-grid {
+	display: grid;
+	grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+	gap: 18px;
+}
+
+.nsw-rom-card {
+	background: #fff;
+	border: 1px solid #eeeeee;
+	border-radius: 10px;
+	overflow: hidden;
+	transition: box-shadow .15s, transform .15s;
+}
+
+.nsw-rom-card:hover {
+	box-shadow: 0 6px 22px rgba(0,0,0,.10);
+	transform: translateY(-2px);
+}
+
+.nsw-card-img-link { display: block; line-height: 0; }
+
+.nsw-card-img-link img {
+	width: 100%;
+	height: 128px;
+	object-fit: cover;
+	display: block;
+}
+
+.nsw-card-no-img {
+	width: 100%;
+	height: 128px;
+	background: #f0f0f0;
+}
+
+.nsw-card-body { padding: 12px 14px; }
+
+.nsw-card-title {
+	font-size: 13px;
+	font-weight: 700;
+	margin: 0 0 6px;
+	line-height: 1.4;
+	color: #111;
+}
+
+.nsw-card-title a { text-decoration: none; color: inherit; }
+.nsw-card-title a:hover { color: #f0a500; }
+
+.nsw-card-meta {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 5px;
+	margin-bottom: 8px;
+}
+
+.nsw-card-genre,
+.nsw-card-format {
+	font-size: 11px;
+	padding: 2px 8px;
+	border-radius: 4px;
+}
+
+.nsw-card-genre  { background: #e8f4fd; color: #0a5fa0; }
+.nsw-card-format { background: #fff3cd; color: #7a5800; }
+
+.nsw-card-footer {
+	display: flex;
+	justify-content: space-between;
+	font-size: 11px;
+	color: #888;
+}
+
+/* =============================================================================
+   ROM SECTION — Homepage
+   ============================================================================= */
+
+.nsw-rom-section { margin-bottom: 48px; }
+
+.nsw-section-header {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	margin-bottom: 18px;
+}
+
+.nsw-section-title {
+	font-size: 20px;
+	font-weight: 800;
+	color: #111;
+	margin: 0;
+}
+
+.nsw-see-all {
+	font-size: 13px;
+	color: #f0a500;
+	text-decoration: none;
+	font-weight: 600;
+}
+
+.nsw-see-all:hover { text-decoration: underline; }
+
+/* =============================================================================
+   HERO SEARCH — Shortcode [hero_search]
+   ============================================================================= */
+
+.nsw-hero-search-wrap {
+	position: relative;
+	max-width: 640px;
+	margin: 0 auto 40px;
+}
+
+.nsw-hero-search-box {
+	display: flex;
+	background: #ffffff;
+	border: 2px solid #e0e0e0;
+	border-radius: 8px;
+	overflow: hidden;
+}
+
+.nsw-hero-search-box input {
+	flex: 1;
+	border: none;
+	outline: none;
+	padding: 16px 20px;
+	font-size: 16px;
+	background: #f0f0f0;
+	color: #111;
+}
+
+.nsw-hero-search-box input::placeholder { color: #999; }
+
+#nsw-hero-btn {
+	background: #111;
+	border: none;
+	padding: 0 22px;
+	cursor: pointer;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	color: #fff;
+	transition: background .15s;
+}
+
+#nsw-hero-btn:hover { background: #f0a500; }
+
+.nsw-hero-results {
+	display: none;
+	position: absolute;
+	top: 100%;
+	left: 0;
+	right: 0;
+	background: #fff;
+	border: 1px solid #ddd;
+	border-radius: 0 0 8px 8px;
+	z-index: 999;
+	max-height: 340px;
+	overflow-y: auto;
+	box-shadow: 0 6px 20px rgba(0,0,0,.10);
+}
+
+.nsw-sri {
+	display: flex;
+	align-items: center;
+	gap: 12px;
+	padding: 10px 16px;
+	text-decoration: none;
+	color: #111;
+	font-size: 14px;
+	border-bottom: 1px solid #f5f5f5;
+}
+
+.nsw-sri:hover { background: #f9f9f9; }
+
+.nsw-sri img {
+	width: 44px;
+	height: 44px;
+	object-fit: cover;
+	border-radius: 5px;
+	flex-shrink: 0;
+}
+
+.nsw-no-results-msg { padding: 12px 16px; color: #999; font-size: 14px; }
+
+/* =============================================================================
+   ARCHIVE PAGES — /type/, /genre/, /badge/, /publisher/
+   ============================================================================= */
+
+.nsw-archive-page {
+	padding: 40px 20px;
+}
+
+.nsw-archive-heading {
+	font-size: 28px;
+	font-weight: 800;
+	color: #111;
+	margin-bottom: 28px;
+	padding-bottom: 14px;
+	border-bottom: 2px solid #f0a500;
+}
+
+.nsw-no-results {
+	color: #888;
+	font-size: 16px;
+	padding: 40px 0;
+	text-align: center;
+}
+
+.nsw-pagination {
+	margin-top: 40px;
+	display: flex;
+	justify-content: center;
+	gap: 6px;
+}
+
+.nsw-pagination .page-numbers {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	width: 38px;
+	height: 38px;
+	border-radius: 6px;
+	border: 1px solid #ddd;
+	text-decoration: none;
+	font-size: 14px;
+	color: #333;
+	transition: all .15s;
+}
+
+.nsw-pagination .page-numbers:hover,
+.nsw-pagination .page-numbers.current {
+	background: #f0a500;
+	border-color: #f0a500;
+	color: #fff;
+}
+
+/* =============================================================================
+   MOBILE RESPONSIVE
+   ============================================================================= */
+
+@media (max-width: 768px) {
+	.nsw-article-hero {
+		flex-direction: column;
+		gap: 16px;
+	}
+
+	.nsw-hero-img-wrap {
+		width: 100%;
+		max-width: 320px;
+	}
+
+	.nsw-article-title { font-size: 20px; }
+
+	.nsw-dl-btn {
+		min-width: unset;
+		max-width: 100%;
+		padding: 14px 18px;
+	}
+
+	.nsw-rom-grid {
+		grid-template-columns: repeat(auto-fill, minmax(155px, 1fr));
+		gap: 12px;
+	}
+
+	.nsw-shots-grid {
+		grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+	}
+
+	.nsw-lb-img {
+		max-width: 95vw;
+	}
+
+	.nsw-lb-prev,
+	.nsw-lb-next {
+		width: 36px;
+		height: 36px;
+		font-size: 16px;
+	}
+}
+
+@media (max-width: 480px) {
+	.nsw-rom-grid {
+		grid-template-columns: repeat(2, 1fr);
+	}
+
+	.nsw-shots-grid {
+		grid-template-columns: repeat(2, 1fr);
+	}
+
+	.nsw-hero-search-box input { font-size: 14px; padding: 13px 14px; }
 }
