@@ -568,22 +568,22 @@ function nswpedia_display_downloads( $content ) {
 	$downloads = get_post_meta( $post_id, '_game_downloads', true );
 	if ( ! is_array( $downloads ) || empty( $downloads ) ) return $content;
 
-	$slug = get_post_field( 'post_name', $post_id );
-	$html = '<div class="nsw-downloads"><h3 class="nsw-downloads-heading">Download</h3>';
+	$slug     = get_post_field( 'post_name', $post_id );
+	$app_name = get_post_meta( $post_id, '_game_app_name', true ) ?: get_the_title( $post_id );
+	$html     = '<div class="nsw-downloads"><h3 class="nsw-downloads-heading">Download</h3>';
 	foreach ( $downloads as $i => $dl ) {
 		if ( empty( $dl['url'] ) ) continue;
-		$type   = esc_html( $dl['type'] ?? 'Download' );
+		$type   = $dl['type'] ?? 'NSP';
 		$size   = esc_html( $dl['size'] ?? '' );
 		$dl_url = esc_url( home_url( '/download/' . $slug . '/' . $i . '/' ) );
+		$label  = esc_html( $app_name ) . ' <span class="nsw-dl-type">- ' . esc_html( strtolower( $type ) ) . '</span>';
 		$html  .= '<a href="' . $dl_url . '" class="nsw-dl-btn" target="_blank" rel="nofollow">';
 		$html  .= '<span class="nsw-dl-left">';
-		$html  .= '<svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="currentColor"><path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/></svg>';
-		$html  .= '<span class="nsw-dl-label">Download <strong>' . $type . '</strong></span>';
+		$html  .= '<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/></svg>';
+		$html  .= '<span class="nsw-dl-label">' . $label . '</span>';
 		$html  .= '</span>';
-		if ( $size ) {
-			$html .= '<span class="nsw-dl-size">' . $size . '</span>';
-		}
-		$html .= '</a>';
+		$html  .= '<span class="nsw-dl-size">Download' . ( $size ? ' &bull; ' . $size : '' ) . '</span>';
+		$html  .= '</a>';
 	}
 	$html .= '</div>';
 
