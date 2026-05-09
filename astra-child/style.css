@@ -1,0 +1,274 @@
+/*
+Theme Name:   NSWPedia Child
+Description:  Child theme for NSWPedia.net — exact header/footer clone of nswpedia.com with SEO improvements.
+Author:       NSWPedia
+Template:     astra
+Version:      1.0.0
+Text Domain:  nswpedia-child
+*/
+
+/* =============================================================================
+   HEADER — Top Amber Accent Bar
+   ============================================================================= */
+
+/* Thin amber/orange line across the very top of the page */
+#masthead {
+	border-top: 3px solid #f0a500;
+}
+
+/* =============================================================================
+   HEADER — Primary Bar
+   ============================================================================= */
+
+.ast-primary-header-bar,
+.ast-primary-header-bar .site-primary-header-wrap {
+	background-color: #ffffff;
+	min-height: 72px;
+}
+
+/* =============================================================================
+   LOGO — Bold Text Treatment (no image logo)
+   ============================================================================= */
+
+.ast-site-identity .site-title,
+.ast-site-identity .site-title a {
+	font-family: inherit;
+	font-size: 22px;
+	font-weight: 800;
+	letter-spacing: 0.3px;
+	color: #111111;
+	text-transform: uppercase;
+	text-decoration: none;
+	line-height: 1;
+}
+
+.ast-site-identity .site-title a:hover {
+	color: #111111;
+	text-decoration: none;
+}
+
+/* Hide site tagline in header */
+.ast-site-identity .site-description {
+	display: none;
+}
+
+/* =============================================================================
+   NAVIGATION — Menu Items with Icons
+   ============================================================================= */
+
+/* Menu container alignment */
+.ast-primary-header-bar .main-header-menu {
+	background: transparent;
+	display: flex;
+	align-items: center;
+	gap: 0;
+}
+
+/* Menu items */
+.main-header-menu > .menu-item > a {
+	font-size: 14px;
+	font-weight: 500;
+	color: #1a1a1a;
+	padding: 0 18px;
+	line-height: 72px;
+	display: flex;
+	align-items: center;
+	gap: 7px;
+	text-decoration: none;
+	white-space: nowrap;
+	border-bottom: none;
+}
+
+.main-header-menu > .menu-item > a:hover {
+	color: #f0a500;
+	background: transparent;
+}
+
+.main-header-menu > .menu-item.current-menu-item > a,
+.main-header-menu > .menu-item.current_page_item > a {
+	color: #f0a500;
+	background: transparent;
+}
+
+/* Remove default Astra hover underline */
+.ast-primary-header-bar .main-header-menu .menu-item > a:focus,
+.ast-primary-header-bar .main-header-menu .menu-item > a:hover {
+	text-decoration: none;
+}
+
+/* =============================================================================
+   NAV ICONS — SVG icons injected via menu Navigation Labels
+   Usage: paste the <svg>…</svg> HTML directly into the menu item label
+   in Appearance > Menus. The CSS below sizes and aligns them.
+   ============================================================================= */
+
+.main-header-menu > .menu-item > a svg {
+	width: 16px;
+	height: 16px;
+	flex-shrink: 0;
+	vertical-align: middle;
+	fill: currentColor;
+	color: #444444;
+}
+
+.main-header-menu > .menu-item > a:hover svg {
+	color: #f0a500;
+}
+
+/* =============================================================================
+   SEARCH — Inline full-width search box (right zone)
+   Set Search component style to "Classic" in Astra Header Builder
+   ============================================================================= */
+
+/* Outer wrapper */
+.ast-header-search,
+.ast-search-menu-icon {
+	display: flex;
+	align-items: center;
+}
+
+/* The search form box */
+.ast-header-search .search-form,
+.ast-search-menu-icon .search-form {
+	display: flex !important;
+	align-items: center;
+	background: #f5f5f5;
+	border: 1px solid #e2e2e2;
+	border-radius: 5px;
+	padding: 7px 14px;
+	width: 240px;
+	gap: 8px;
+}
+
+/* Input field */
+.ast-header-search .search-field,
+.ast-search-menu-icon .search-field {
+	border: none !important;
+	background: transparent !important;
+	outline: none !important;
+	box-shadow: none !important;
+	font-size: 14px;
+	color: #333333;
+	width: 100%;
+	padding: 0 !important;
+	margin: 0 !important;
+	height: auto !important;
+	min-height: auto !important;
+}
+
+.ast-header-search .search-field::placeholder,
+.ast-search-menu-icon .search-field::placeholder {
+	color: #aaaaaa;
+	font-size: 14px;
+}
+
+/* Hide default submit button text, keep icon */
+.ast-header-search .search-submit,
+.ast-search-menu-icon .search-submit {
+	background: transparent !important;
+	border: none !important;
+	padding: 0 !important;
+	cursor: pointer;
+	color: #888888;
+	font-size: 0; /* hide text */
+	display: flex;
+	align-items: center;
+	flex-shrink: 0;
+}
+
+/* Magnifying glass icon via ::before */
+.ast-header-search .search-submit::before,
+.ast-search-menu-icon .search-submit::before {
+	content: '';
+	display: inline-block;
+	width: 16px;
+	height: 16px;
+	background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23888888' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='11' cy='11' r='8'/%3E%3Cline x1='21' y1='21' x2='16.65' y2='16.65'/%3E%3C/svg%3E");
+	background-repeat: no-repeat;
+	background-size: contain;
+}
+
+.ast-header-search .search-submit:hover::before,
+.ast-search-menu-icon .search-submit:hover::before {
+	background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23f0a500' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='11' cy='11' r='8'/%3E%3Cline x1='21' y1='21' x2='16.65' y2='16.65'/%3E%3C/svg%3E");
+}
+
+/* Override Astra Pro advanced-search inline-search if active */
+.ast-inline-search .ast-search-form {
+	background: #f5f5f5 !important;
+	border: 1px solid #e2e2e2 !important;
+	border-radius: 5px !important;
+	width: 240px !important;
+}
+
+.ast-inline-search .ast-search-form .search-field {
+	background: transparent !important;
+	border: none !important;
+	font-size: 14px !important;
+	color: #333333 !important;
+}
+
+.ast-inline-search .ast-search-form .search-field::placeholder {
+	color: #aaaaaa !important;
+}
+
+/* =============================================================================
+   MOBILE HEADER — keep consistent
+   ============================================================================= */
+
+.ast-mobile-header-wrap .ast-primary-header-bar {
+	background-color: #ffffff;
+	border-top: 3px solid #f0a500;
+}
+
+/* Hamburger icon color */
+.ast-button-wrap .menu-toggle,
+.ast-mobile-menu-trigger .menu-toggle {
+	color: #111111;
+}
+
+/* =============================================================================
+   HEADER — Remove extra borders/shadows added by Astra defaults
+   ============================================================================= */
+
+.ast-primary-header-bar {
+	border-bottom: none;
+	box-shadow: none;
+}
+
+/* Light bottom border to separate header from content */
+#masthead {
+	border-bottom: 1px solid #eeeeee;
+}
+
+/* =============================================================================
+   SEO IMPROVEMENTS (beyond competitor)
+   — Schema-friendly skip link is already in Astra
+   — Force breadcrumb display on all non-home pages
+   ============================================================================= */
+
+/* Breadcrumb bar */
+.ast-breadcrumbs-wrapper {
+	background: #f9f9f9;
+	border-bottom: 1px solid #eeeeee;
+	padding: 6px 0;
+	font-size: 13px;
+}
+
+.ast-breadcrumbs-wrapper a {
+	color: #f0a500;
+	text-decoration: none;
+}
+
+.ast-breadcrumbs-wrapper a:hover {
+	text-decoration: underline;
+}
+
+/* =============================================================================
+   UTILITY
+   ============================================================================= */
+
+/* Full-width container to match competitor's edge-to-edge feel */
+.ast-container {
+	max-width: 1280px;
+}
