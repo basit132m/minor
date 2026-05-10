@@ -883,3 +883,433 @@ function nswpedia_tutorials_page() {
 	get_footer();
 	exit;
 }
+
+// ============================================================
+// EMULATORS — CPT, Meta Boxes, Rewrites, Templates
+// ============================================================
+
+// --- Register CPT ---
+add_action( 'init', 'nswpedia_register_emulator_cpt' );
+function nswpedia_register_emulator_cpt() {
+	register_post_type( 'emulator', array(
+		'labels'       => array(
+			'name'               => 'Emulators',
+			'singular_name'      => 'Emulator',
+			'add_new_item'       => 'Add New Emulator',
+			'edit_item'          => 'Edit Emulator',
+			'new_item'           => 'New Emulator',
+			'view_item'          => 'View Emulator',
+			'search_items'       => 'Search Emulators',
+			'not_found'          => 'No emulators found',
+			'not_found_in_trash' => 'No emulators found in Trash',
+		),
+		'public'       => true,
+		'has_archive'  => false,
+		'rewrite'      => false,
+		'menu_icon'    => 'dashicons-games',
+		'supports'     => array( 'title', 'editor', 'thumbnail' ),
+		'show_in_rest' => true,
+	) );
+}
+
+// --- Custom permalink: /emulators/{platform}/{slug}/ ---
+add_filter( 'post_type_link', 'nswpedia_emulator_permalink', 10, 2 );
+function nswpedia_emulator_permalink( $url, $post ) {
+	if ( $post->post_type !== 'emulator' ) return $url;
+	$platform_slug = sanitize_title( get_post_meta( $post->ID, '_emulator_platform', true ) );
+	if ( ! $platform_slug ) $platform_slug = 'other';
+	return home_url( '/emulators/' . $platform_slug . '/' . $post->post_name . '/' );
+}
+
+// --- Rewrite rules (most specific last so 'top' puts them first) ---
+add_action( 'init', 'nswpedia_emulator_rewrites' );
+function nswpedia_emulator_rewrites() {
+	add_rewrite_rule( '^emulators/?$',                          'index.php?nsw_emulators_index=1',                              'top' );
+	add_rewrite_rule( '^emulators/([^/]+)/?$',                  'index.php?nsw_emulator_platform=$matches[1]',                  'top' );
+	add_rewrite_rule( '^emulators/([^/]+)/([^/]+)/?$',          'index.php?post_type=emulator&name=$matches[2]',                'top' );
+}
+
+add_filter( 'query_vars', 'nswpedia_emulator_query_vars' );
+function nswpedia_emulator_query_vars( $vars ) {
+	$vars[] = 'nsw_emulators_index';
+	$vars[] = 'nsw_emulator_platform';
+	return $vars;
+}
+
+// --- Template redirect ---
+add_action( 'template_redirect', 'nswpedia_emulator_template_redirect', 2 );
+function nswpedia_emulator_template_redirect() {
+	if ( is_singular( 'emulator' ) ) {
+		nswpedia_render_single_emulator( get_queried_object() );
+		exit;
+	}
+	$platform_slug = get_query_var( 'nsw_emulator_platform' );
+	if ( $platform_slug ) {
+		nswpedia_render_emulator_platform( $platform_slug );
+		exit;
+	}
+	if ( get_query_var( 'nsw_emulators_index' ) ) {
+		nswpedia_render_emulators_index();
+		exit;
+	}
+}
+
+// --- /emulators/ index page ---
+function nswpedia_render_emulators_index() {
+	global $wp_query;
+	$wp_query->is_404  = false;
+	$wp_query->is_home = false;
+	status_header( 200 );
+
+	$posts = get_posts( array(
+		'post_type'      => 'emulator',
+		'posts_per_page' => -1,
+		'post_status'    => 'publish',
+		'orderby'        => 'title',
+		'order'          => 'ASC',
+	) );
+
+	// Group by platform
+	$platforms = array();
+	foreach ( $posts as $p ) {
+		$platform = get_post_meta( $p->ID, '_emulator_platform', true );
+		if ( ! $platform ) $platform = 'Other';
+		$platforms[ $platform ][] = $p;
+	}
+	ksort( $platforms );
+
+	get_header();
+	?>
+	<div class="ast-container">
+	<div style="padding:40px 20px;">
+
+	<h1 style="font-size:2rem;font-weight:700;margin-bottom:8px;">Emulators</h1>
+	<p style="color:#666;margin-bottom:32px;">Browse emulators by platform to play your favorite games.</p>
+
+	<?php if ( empty( $platforms ) ) : ?>
+		<p>No emulators found. Add emulators from the admin panel.</p>
+	<?php else : ?>
+		<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:20px;">
+		<?php foreach ( $platforms as $platform_name => $platform_posts ) :
+			$platform_slug = sanitize_title( $platform_name );
+			$platform_url  = home_url( '/emulators/' . $platform_slug . '/' );
+			$count         = count( $platform_posts );
+			$first         = $platform_posts[0];
+			$thumb         = get_the_post_thumbnail_url( $first->ID, 'medium' );
+		?>
+			<a href="<?php echo esc_url( $platform_url ); ?>" style="display:block;background:#fff;border-radius:12px;overflow:hidden;box-shadow:0 2px 12px rgba(0,0,0,.08);text-decoration:none;color:inherit;transition:transform .2s,box-shadow .2s;" onmouseover="this.style.transform='translateY(-4px)';this.style.boxShadow='0 6px 24px rgba(0,0,0,.14)';" onmouseout="this.style.transform='';this.style.boxShadow='0 2px 12px rgba(0,0,0,.08)';">
+				<?php if ( $thumb ) : ?>
+					<img src="<?php echo esc_url( $thumb ); ?>" alt="<?php echo esc_attr( $platform_name ); ?>" style="width:100%;height:130px;object-fit:cover;">
+				<?php else : ?>
+					<div style="width:100%;height:130px;background:linear-gradient(135deg,#e8100a,#ff6b35);display:flex;align-items:center;justify-content:center;">
+						<span style="font-size:2.5rem;">🎮</span>
+					</div>
+				<?php endif; ?>
+				<div style="padding:16px;">
+					<div style="font-weight:700;font-size:1rem;margin-bottom:4px;"><?php echo esc_html( $platform_name ); ?></div>
+					<div style="color:#888;font-size:.85rem;"><?php echo $count; ?> emulator<?php echo $count !== 1 ? 's' : ''; ?></div>
+				</div>
+			</a>
+		<?php endforeach; ?>
+		</div>
+	<?php endif; ?>
+
+	</div><!-- /padding -->
+	</div><!-- /ast-container -->
+
+	<?php
+	// Schema markup
+	$schema = array(
+		'@context'    => 'https://schema.org',
+		'@type'       => 'CollectionPage',
+		'name'        => 'Emulators — NSWPedia',
+		'description' => 'Browse Nintendo Switch emulators by platform.',
+		'url'         => home_url( '/emulators/' ),
+	);
+	echo '<script type="application/ld+json">' . wp_json_encode( $schema ) . '</script>';
+
+	get_footer();
+}
+
+// --- /emulators/{platform}/ platform page ---
+function nswpedia_render_emulator_platform( $platform_slug ) {
+	global $wp_query;
+	$wp_query->is_404  = false;
+	$wp_query->is_home = false;
+	status_header( 200 );
+
+	$posts = get_posts( array(
+		'post_type'      => 'emulator',
+		'posts_per_page' => -1,
+		'post_status'    => 'publish',
+		'orderby'        => 'title',
+		'order'          => 'ASC',
+		'meta_query'     => array( array(
+			'key'     => '_emulator_platform',
+			'value'   => $platform_slug,
+			'compare' => 'LIKE',
+		) ),
+	) );
+
+	// Try matching by sanitized title if no results
+	if ( empty( $posts ) ) {
+		$all_posts = get_posts( array( 'post_type' => 'emulator', 'posts_per_page' => -1, 'post_status' => 'publish' ) );
+		foreach ( $all_posts as $p ) {
+			$pf = get_post_meta( $p->ID, '_emulator_platform', true );
+			if ( sanitize_title( $pf ) === $platform_slug ) {
+				$posts[] = $p;
+			}
+		}
+	}
+
+	$platform_label = $platform_slug;
+	if ( ! empty( $posts ) ) {
+		$platform_label = get_post_meta( $posts[0]->ID, '_emulator_platform', true );
+	}
+
+	get_header();
+	?>
+	<div class="ast-container">
+	<div style="padding:40px 20px;">
+
+	<div style="margin-bottom:16px;font-size:.9rem;"><a href="<?php echo esc_url( home_url( '/emulators/' ) ); ?>" style="color:#e8100a;text-decoration:none;">← All Emulators</a></div>
+	<h1 style="font-size:2rem;font-weight:700;margin-bottom:8px;"><?php echo esc_html( $platform_label ); ?> Emulators</h1>
+	<p style="color:#666;margin-bottom:32px;"><?php echo count( $posts ); ?> emulator<?php echo count( $posts ) !== 1 ? 's' : ''; ?> found for <?php echo esc_html( $platform_label ); ?>.</p>
+
+	<?php if ( empty( $posts ) ) : ?>
+		<p>No emulators found for this platform.</p>
+	<?php else : ?>
+		<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:24px;">
+		<?php foreach ( $posts as $p ) :
+			$thumb      = get_the_post_thumbnail_url( $p->ID, 'medium_large' );
+			$link       = get_permalink( $p );
+			$version    = get_post_meta( $p->ID, '_emulator_version', true );
+			$developer  = get_post_meta( $p->ID, '_emulator_developer', true );
+			$os_support = get_post_meta( $p->ID, '_emulator_os_support', true );
+			if ( ! is_array( $os_support ) ) $os_support = array_filter( (array) $os_support );
+		?>
+			<a href="<?php echo esc_url( $link ); ?>" style="display:block;background:#fff;border-radius:14px;overflow:hidden;box-shadow:0 2px 12px rgba(0,0,0,.08);text-decoration:none;color:inherit;transition:transform .2s,box-shadow .2s;" onmouseover="this.style.transform='translateY(-4px)';this.style.boxShadow='0 6px 24px rgba(0,0,0,.14)';" onmouseout="this.style.transform='';this.style.boxShadow='0 2px 12px rgba(0,0,0,.08)';">
+				<?php if ( $thumb ) : ?>
+					<img src="<?php echo esc_url( $thumb ); ?>" alt="<?php echo esc_attr( $p->post_title ); ?>" style="width:100%;height:160px;object-fit:cover;">
+				<?php else : ?>
+					<div style="width:100%;height:160px;background:linear-gradient(135deg,#1a1a2e,#16213e);display:flex;align-items:center;justify-content:center;font-size:3rem;">🎮</div>
+				<?php endif; ?>
+				<div style="padding:20px;">
+					<h2 style="font-size:1.1rem;font-weight:700;margin:0 0 8px;"><?php echo esc_html( $p->post_title ); ?></h2>
+					<?php if ( $developer ) : ?>
+						<div style="color:#666;font-size:.85rem;margin-bottom:6px;">by <?php echo esc_html( $developer ); ?></div>
+					<?php endif; ?>
+					<?php if ( $version ) : ?>
+						<div style="display:inline-block;background:#f0f0f0;border-radius:20px;padding:2px 10px;font-size:.8rem;color:#444;">v<?php echo esc_html( $version ); ?></div>
+					<?php endif; ?>
+					<?php if ( ! empty( $os_support ) ) : ?>
+						<div style="margin-top:10px;display:flex;flex-wrap:wrap;gap:4px;">
+						<?php foreach ( $os_support as $os ) : ?>
+							<span style="background:#e8f4fd;color:#0066cc;border-radius:4px;padding:2px 8px;font-size:.75rem;"><?php echo esc_html( $os ); ?></span>
+						<?php endforeach; ?>
+						</div>
+					<?php endif; ?>
+				</div>
+			</a>
+		<?php endforeach; ?>
+		</div>
+	<?php endif; ?>
+
+	</div><!-- /padding -->
+	</div><!-- /ast-container -->
+
+	<?php
+	$schema = array(
+		'@context'    => 'https://schema.org',
+		'@type'       => 'CollectionPage',
+		'name'        => esc_html( $platform_label ) . ' Emulators — NSWPedia',
+		'description' => 'Best ' . esc_html( $platform_label ) . ' emulators reviewed and listed.',
+		'url'         => home_url( '/emulators/' . $platform_slug . '/' ),
+	);
+	echo '<script type="application/ld+json">' . wp_json_encode( $schema ) . '</script>';
+
+	get_footer();
+}
+
+// --- Single emulator page ---
+function nswpedia_render_single_emulator( $post ) {
+	setup_postdata( $post );
+
+	$title       = get_the_title( $post );
+	$thumb       = get_the_post_thumbnail_url( $post->ID, 'large' );
+	$version     = get_post_meta( $post->ID, '_emulator_version', true );
+	$developer   = get_post_meta( $post->ID, '_emulator_developer', true );
+	$website     = get_post_meta( $post->ID, '_emulator_website', true );
+	$download    = get_post_meta( $post->ID, '_emulator_download_url', true );
+	$github      = get_post_meta( $post->ID, '_emulator_github_url', true );
+	$os_support  = get_post_meta( $post->ID, '_emulator_os_support', true );
+	$compat      = get_post_meta( $post->ID, '_emulator_compatibility', true );
+	$open_source = get_post_meta( $post->ID, '_emulator_open_source', true );
+	$platform    = get_post_meta( $post->ID, '_emulator_platform', true );
+	$platform_slug = sanitize_title( $platform );
+	if ( ! is_array( $os_support ) ) $os_support = array_filter( (array) $os_support );
+
+	get_header();
+	?>
+	<div class="ast-container">
+	<div style="padding:40px 20px;">
+
+	<div style="margin-bottom:16px;font-size:.9rem;">
+		<a href="<?php echo esc_url( home_url( '/emulators/' ) ); ?>" style="color:#e8100a;text-decoration:none;">Emulators</a>
+		<?php if ( $platform ) : ?>
+			&nbsp;/&nbsp;<a href="<?php echo esc_url( home_url( '/emulators/' . $platform_slug . '/' ) ); ?>" style="color:#e8100a;text-decoration:none;"><?php echo esc_html( $platform ); ?></a>
+		<?php endif; ?>
+	</div>
+
+	<div style="display:grid;grid-template-columns:1fr 2fr;gap:40px;align-items:start;">
+
+		<!-- Left: image + download buttons -->
+		<div>
+			<?php if ( $thumb ) : ?>
+				<img src="<?php echo esc_url( $thumb ); ?>" alt="<?php echo esc_attr( $title ); ?>" style="width:100%;border-radius:14px;box-shadow:0 4px 20px rgba(0,0,0,.12);">
+			<?php else : ?>
+				<div style="width:100%;aspect-ratio:4/3;background:linear-gradient(135deg,#1a1a2e,#16213e);border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:4rem;">🎮</div>
+			<?php endif; ?>
+
+			<div style="margin-top:20px;display:flex;flex-direction:column;gap:10px;">
+				<?php if ( $download ) : ?>
+					<a href="<?php echo esc_url( $download ); ?>" target="_blank" rel="nofollow noopener" style="display:block;background:#e8100a;color:#fff;text-align:center;padding:12px 20px;border-radius:8px;font-weight:700;text-decoration:none;">⬇ Download</a>
+				<?php endif; ?>
+				<?php if ( $github ) : ?>
+					<a href="<?php echo esc_url( $github ); ?>" target="_blank" rel="nofollow noopener" style="display:block;background:#24292e;color:#fff;text-align:center;padding:12px 20px;border-radius:8px;font-weight:700;text-decoration:none;">GitHub</a>
+				<?php endif; ?>
+				<?php if ( $website ) : ?>
+					<a href="<?php echo esc_url( $website ); ?>" target="_blank" rel="nofollow noopener" style="display:block;background:#f0f0f0;color:#333;text-align:center;padding:12px 20px;border-radius:8px;font-weight:700;text-decoration:none;">Official Website</a>
+				<?php endif; ?>
+			</div>
+		</div>
+
+		<!-- Right: details -->
+		<div>
+			<h1 style="font-size:2rem;font-weight:700;margin:0 0 8px;"><?php echo esc_html( $title ); ?></h1>
+
+			<?php if ( $developer ) : ?>
+				<div style="color:#666;margin-bottom:16px;">by <?php echo esc_html( $developer ); ?></div>
+			<?php endif; ?>
+
+			<div style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:24px;">
+				<?php if ( $version ) : ?>
+					<span style="background:#e8f4fd;color:#0066cc;border-radius:20px;padding:4px 14px;font-size:.85rem;font-weight:600;">v<?php echo esc_html( $version ); ?></span>
+				<?php endif; ?>
+				<?php if ( $open_source === 'yes' ) : ?>
+					<span style="background:#e8fdf0;color:#007733;border-radius:20px;padding:4px 14px;font-size:.85rem;font-weight:600;">Open Source</span>
+				<?php endif; ?>
+				<?php if ( $compat ) : ?>
+					<span style="background:#fff3e0;color:#e65100;border-radius:20px;padding:4px 14px;font-size:.85rem;font-weight:600;"><?php echo esc_html( $compat ); ?> Compatibility</span>
+				<?php endif; ?>
+			</div>
+
+			<?php if ( ! empty( $os_support ) ) : ?>
+				<div style="margin-bottom:24px;">
+					<div style="font-weight:600;margin-bottom:8px;">Supported Platforms</div>
+					<div style="display:flex;flex-wrap:wrap;gap:6px;">
+					<?php foreach ( $os_support as $os ) : ?>
+						<span style="background:#f5f5f5;border:1px solid #ddd;border-radius:6px;padding:4px 12px;font-size:.85rem;"><?php echo esc_html( $os ); ?></span>
+					<?php endforeach; ?>
+					</div>
+				</div>
+			<?php endif; ?>
+
+			<div class="entry-content" style="line-height:1.7;">
+				<?php the_content(); ?>
+			</div>
+		</div>
+
+	</div><!-- /grid -->
+
+	</div><!-- /padding -->
+	</div><!-- /ast-container -->
+
+	<?php
+	$schema = array(
+		'@context'       => 'https://schema.org',
+		'@type'          => 'SoftwareApplication',
+		'name'           => $title,
+		'applicationCategory' => 'GameApplication',
+		'operatingSystem'     => implode( ', ', $os_support ),
+		'url'            => get_permalink( $post->ID ),
+	);
+	if ( $developer ) $schema['author'] = array( '@type' => 'Organization', 'name' => $developer );
+	if ( $version )   $schema['softwareVersion'] = $version;
+	if ( $download )  $schema['downloadUrl'] = $download;
+	echo '<script type="application/ld+json">' . wp_json_encode( $schema ) . '</script>';
+
+	wp_reset_postdata();
+	get_footer();
+}
+
+// --- Emulator meta boxes ---
+add_action( 'add_meta_boxes', 'nswpedia_emulator_meta_boxes' );
+function nswpedia_emulator_meta_boxes() {
+	add_meta_box( 'nswpedia_emulator_details', 'Emulator Details', 'nswpedia_emulator_meta_box_html', 'emulator', 'normal', 'high' );
+}
+
+function nswpedia_emulator_meta_box_html( $post ) {
+	wp_nonce_field( 'nswpedia_emulator_save', 'nswpedia_emulator_nonce' );
+	$platform    = get_post_meta( $post->ID, '_emulator_platform', true );
+	$version     = get_post_meta( $post->ID, '_emulator_version', true );
+	$developer   = get_post_meta( $post->ID, '_emulator_developer', true );
+	$website     = get_post_meta( $post->ID, '_emulator_website', true );
+	$download    = get_post_meta( $post->ID, '_emulator_download_url', true );
+	$github      = get_post_meta( $post->ID, '_emulator_github_url', true );
+	$os_support  = get_post_meta( $post->ID, '_emulator_os_support', true );
+	if ( ! is_array( $os_support ) ) $os_support = array();
+	$compat      = get_post_meta( $post->ID, '_emulator_compatibility', true );
+	$open_source = get_post_meta( $post->ID, '_emulator_open_source', true );
+	$all_os      = array( 'Windows', 'macOS', 'Linux', 'Android', 'iOS' );
+	$compat_opts = array( 'Excellent', 'Good', 'Fair', 'Poor' );
+	?>
+	<table class="form-table">
+		<tr><th>Platform</th><td><input type="text" name="emulator_platform" value="<?php echo esc_attr( $platform ); ?>" style="width:100%;" placeholder="e.g. Nintendo Switch"></td></tr>
+		<tr><th>Version</th><td><input type="text" name="emulator_version" value="<?php echo esc_attr( $version ); ?>" style="width:300px;"></td></tr>
+		<tr><th>Developer</th><td><input type="text" name="emulator_developer" value="<?php echo esc_attr( $developer ); ?>" style="width:100%;"></td></tr>
+		<tr><th>Official Website</th><td><input type="url" name="emulator_website" value="<?php echo esc_attr( $website ); ?>" style="width:100%;"></td></tr>
+		<tr><th>Download URL</th><td><input type="url" name="emulator_download_url" value="<?php echo esc_attr( $download ); ?>" style="width:100%;"></td></tr>
+		<tr><th>GitHub URL</th><td><input type="url" name="emulator_github_url" value="<?php echo esc_attr( $github ); ?>" style="width:100%;"></td></tr>
+		<tr>
+			<th>OS Support</th>
+			<td><?php foreach ( $all_os as $os ) : ?>
+				<label style="margin-right:14px;"><input type="checkbox" name="emulator_os_support[]" value="<?php echo esc_attr( $os ); ?>" <?php checked( in_array( $os, $os_support ) ); ?>> <?php echo esc_html( $os ); ?></label>
+			<?php endforeach; ?></td>
+		</tr>
+		<tr>
+			<th>Compatibility</th>
+			<td><select name="emulator_compatibility">
+				<option value="">— Select —</option>
+				<?php foreach ( $compat_opts as $opt ) : ?>
+					<option value="<?php echo esc_attr( $opt ); ?>" <?php selected( $compat, $opt ); ?>><?php echo esc_html( $opt ); ?></option>
+				<?php endforeach; ?>
+			</select></td>
+		</tr>
+		<tr><th>Open Source?</th><td><label><input type="checkbox" name="emulator_open_source" value="yes" <?php checked( $open_source, 'yes' ); ?>> Yes, this emulator is open source</label></td></tr>
+	</table>
+	<?php
+}
+
+add_action( 'save_post_emulator', 'nswpedia_emulator_meta_save' );
+function nswpedia_emulator_meta_save( $post_id ) {
+	if ( ! isset( $_POST['nswpedia_emulator_nonce'] ) ) return;
+	if ( ! wp_verify_nonce( $_POST['nswpedia_emulator_nonce'], 'nswpedia_emulator_save' ) ) return;
+	if ( defined( 'DOING_AUTOSAVE' ) && DOING_AUTOSAVE ) return;
+
+	$fields = array(
+		'_emulator_platform'     => sanitize_text_field( $_POST['emulator_platform'] ?? '' ),
+		'_emulator_version'      => sanitize_text_field( $_POST['emulator_version'] ?? '' ),
+		'_emulator_developer'    => sanitize_text_field( $_POST['emulator_developer'] ?? '' ),
+		'_emulator_website'      => esc_url_raw( $_POST['emulator_website'] ?? '' ),
+		'_emulator_download_url' => esc_url_raw( $_POST['emulator_download_url'] ?? '' ),
+		'_emulator_github_url'   => esc_url_raw( $_POST['emulator_github_url'] ?? '' ),
+		'_emulator_compatibility'=> sanitize_text_field( $_POST['emulator_compatibility'] ?? '' ),
+		'_emulator_open_source'  => ( isset( $_POST['emulator_open_source'] ) && $_POST['emulator_open_source'] === 'yes' ) ? 'yes' : 'no',
+	);
+	foreach ( $fields as $key => $value ) {
+		update_post_meta( $post_id, $key, $value );
+	}
+	$os = isset( $_POST['emulator_os_support'] ) ? array_map( 'sanitize_text_field', (array) $_POST['emulator_os_support'] ) : array();
+	update_post_meta( $post_id, '_emulator_os_support', $os );
+}
