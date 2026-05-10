@@ -805,3 +805,81 @@ function nswpedia_header_search_script() {
 	</script>
 	<?php
 }
+
+// ============================================================
+// TUTORIALS PAGE — /tutorials/
+// ============================================================
+add_action( 'init', 'nswpedia_tutorials_rewrite' );
+function nswpedia_tutorials_rewrite() {
+	add_rewrite_rule( '^tutorials/?$', 'index.php?nsw_tutorials=1', 'top' );
+	add_rewrite_rule( '^tutorials/page/([0-9]+)/?$', 'index.php?nsw_tutorials=1&paged=$matches[1]', 'top' );
+}
+
+add_filter( 'query_vars', 'nswpedia_tutorials_query_var' );
+function nswpedia_tutorials_query_var( $vars ) {
+	$vars[] = 'nsw_tutorials';
+	return $vars;
+}
+
+add_action( 'template_redirect', 'nswpedia_tutorials_page', 2 );
+function nswpedia_tutorials_page() {
+	if ( ! get_query_var( 'nsw_tutorials' ) ) return;
+
+	$paged = max( 1, (int) get_query_var( 'paged' ) );
+	$query = new WP_Query( array(
+		'post_type'      => 'post',
+		'posts_per_page' => 12,
+		'paged'          => $paged,
+		'category_name'  => 'tutorials',
+		'orderby'        => 'date',
+		'order'          => 'DESC',
+	) );
+
+	get_header();
+	echo '<div class="nsw-archive-page ast-container">';
+	echo '<h1 class="nsw-archive-heading">Tutorials</h1>';
+
+	if ( $query->have_posts() ) {
+		echo '<div class="nsw-tutorial-grid">';
+		while ( $query->have_posts() ) {
+			$query->the_post();
+			$pid     = get_the_ID();
+			$thumb   = get_the_post_thumbnail_url( $pid, 'medium_large' );
+			$link    = get_permalink( $pid );
+			$title   = get_the_title( $pid );
+			$excerpt = get_the_excerpt();
+			$date    = get_the_date( 'M j, Y', $pid );
+			echo '<div class="nsw-tutorial-card">';
+			if ( $thumb ) {
+				echo '<a href="' . esc_url( $link ) . '" class="nsw-tc-img-wrap">';
+				echo '<img src="' . esc_url( $thumb ) . '" alt="' . esc_attr( $title ) . '" loading="lazy">';
+				echo '</a>';
+			} else {
+				echo '<div class="nsw-tc-no-img"></div>';
+			}
+			echo '<div class="nsw-tc-body">';
+			echo '<span class="nsw-tc-date">' . esc_html( $date ) . '</span>';
+			echo '<h2 class="nsw-tc-title"><a href="' . esc_url( $link ) . '">' . esc_html( $title ) . '</a></h2>';
+			if ( $excerpt ) {
+				echo '<p class="nsw-tc-excerpt">' . esc_html( wp_trim_words( $excerpt, 18, '…' ) ) . '</p>';
+			}
+			echo '<a href="' . esc_url( $link ) . '" class="nsw-tc-read-more">Read More &rarr;</a>';
+			echo '</div>';
+			echo '</div>';
+		}
+		echo '</div>';
+		echo '<div class="nsw-pagination">' . paginate_links( array(
+			'total'   => $query->max_num_pages,
+			'current' => $paged,
+			'base'    => home_url( '/tutorials/page/%#%/' ),
+			'format'  => '',
+		) ) . '</div>';
+	} else {
+		echo '<p class="nsw-no-results">No tutorials found. Create posts in the <strong>Tutorials</strong> category to show them here.</p>';
+	}
+
+	echo '</div>';
+	wp_reset_postdata();
+	get_footer();
+	exit;
+}
