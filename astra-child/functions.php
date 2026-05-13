@@ -82,6 +82,72 @@ function nswpedia_handle_custom_pages() {
 }
 
 // ============================================================
+// CATEGORY ARCHIVE — handles /category-slug/ and /category-slug/page/N/
+// Page 2+ 404s because WordPress marks them 404 before template_redirect.
+// We intercept early (priority 1), parse the URL, and render ourselves.
+// ============================================================
+add_action( 'template_redirect', 'nswpedia_category_archive', 1 );
+function nswpedia_category_archive() {
+	global $wp_query;
+
+	$category = null;
+	$paged    = 1;
+
+	if ( is_category() ) {
+		$category = get_queried_object();
+		$paged    = max( 1, (int) get_query_var( 'paged' ) );
+	} elseif ( $wp_query->is_404 ) {
+		$path = trim( parse_url( $_SERVER['REQUEST_URI'], PHP_URL_PATH ), '/' );
+		if ( preg_match( '#^([^/]+)/page/(\d+)/?$#', $path, $m ) ) {
+			$cat = get_category_by_slug( $m[1] );
+			if ( $cat ) {
+				$category = $cat;
+				$paged    = (int) $m[2];
+			}
+		}
+	}
+
+	if ( ! $category ) return;
+
+	$wp_query->is_404  = false;
+	$wp_query->is_home = false;
+	status_header( 200 );
+
+	$query = new WP_Query( array(
+		'post_type'      => 'post',
+		'posts_per_page' => 24,
+		'paged'          => $paged,
+		'cat'            => $category->term_id,
+	) );
+
+	get_header();
+	echo '<div class="nsw-archive-page ast-container">';
+	echo '<h1 class="nsw-archive-heading">' . esc_html( $category->name ) . '</h1>';
+
+	if ( $query->have_posts() ) {
+		echo '<div class="nsw-rom-grid">';
+		while ( $query->have_posts() ) {
+			$query->the_post();
+			nswpedia_rom_card( get_the_ID() );
+		}
+		echo '</div>';
+		echo '<div class="nsw-pagination">' . paginate_links( array(
+			'total'   => $query->max_num_pages,
+			'current' => $paged,
+			'base'    => get_category_link( $category->term_id ) . '%_%',
+			'format'  => 'page/%#%/',
+		) ) . '</div>';
+	} else {
+		echo '<p class="nsw-no-results">No games found.</p>';
+	}
+
+	echo '</div>';
+	wp_reset_postdata();
+	get_footer();
+	exit;
+}
+
+// ============================================================
 // ARCHIVE PAGE RENDERER
 // ============================================================
 function nswpedia_render_archive_page( $type, $slug, $heading ) {
