@@ -166,7 +166,8 @@ function nswpedia_render_archive_page( $type, $slug, $heading ) {
 		$meta_value = strtoupper( str_replace( '-', '+', $slug ) );
 	}
 
-	$paged = max( 1, (int) get_query_var( 'paged' ) );
+	$paged   = max( 1, (int) get_query_var( 'paged' ) );
+	$compare = ( 'genre' === $type ) ? 'LIKE' : '=';
 	$query = new WP_Query( array(
 		'post_type'      => 'post',
 		'posts_per_page' => 24,
@@ -175,7 +176,7 @@ function nswpedia_render_archive_page( $type, $slug, $heading ) {
 			array(
 				'key'     => $field,
 				'value'   => $meta_value,
-				'compare' => '=',
+				'compare' => $compare,
 			),
 		),
 	) );
@@ -494,9 +495,11 @@ function nswpedia_article_hero() {
 				<?php if ( $format ) : ?>
 				<a href="<?php echo esc_url( home_url( '/type/' . sanitize_title( $format ) ) ); ?>" class="nsw-pill nsw-pill-format"><?php echo esc_html( $format ); ?></a>
 				<?php endif; ?>
-				<?php if ( $genre ) : ?>
-				<a href="<?php echo esc_url( home_url( '/genre/' . sanitize_title( $genre ) ) ); ?>" class="nsw-pill nsw-pill-genre"><?php echo esc_html( $genre ); ?></a>
-				<?php endif; ?>
+				<?php if ( $genre ) :
+					$hero_genres = array_map( 'trim', explode( ',', $genre ) );
+					foreach ( $hero_genres as $hg ) : ?>
+				<a href="<?php echo esc_url( home_url( '/genre/' . sanitize_title( $hg ) . '/' ) ); ?>" class="nsw-pill nsw-pill-genre"><?php echo esc_html( $hg ); ?></a>
+				<?php endforeach; endif; ?>
 				<?php if ( $badge ) : ?>
 				<a href="<?php echo esc_url( home_url( '/badge/' . sanitize_title( $badge ) ) ); ?>" class="nsw-pill nsw-pill-badge"><?php echo esc_html( ucwords( str_replace( '-', ' ', $badge ) ) ); ?></a>
 				<?php endif; ?>
@@ -538,7 +541,12 @@ function nswpedia_display_game_info( $content ) {
 		if ( ! $val ) continue;
 		$has_data = true;
 		if ( '_game_genre' === $key ) {
-			$display = '<a href="' . esc_url( home_url( '/genre/' . sanitize_title( $val ) ) ) . '">' . esc_html( $val ) . '</a>';
+			$genre_parts = array_map( 'trim', explode( ',', $val ) );
+			$genre_links = array();
+			foreach ( $genre_parts as $gp ) {
+				$genre_links[] = '<a href="' . esc_url( home_url( '/genre/' . sanitize_title( $gp ) . '/' ) ) . '">' . esc_html( $gp ) . '</a>';
+			}
+			$display = implode( ', ', $genre_links );
 		} elseif ( '_game_format' === $key ) {
 			$display = '<a href="' . esc_url( home_url( '/type/' . sanitize_title( $val ) ) ) . '">' . esc_html( $val ) . '</a>';
 		} elseif ( '_game_publisher' === $key ) {
